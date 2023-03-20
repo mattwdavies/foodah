@@ -7,10 +7,18 @@
  */
 
 import React from 'react';
-import {SafeAreaView, StyleSheet, Text} from 'react-native';
+const { Amplify } = require('aws-amplify');
+const { Auth } = require('aws-amplify');
+
+import { SafeAreaView, StyleSheet, Text } from 'react-native';
 import Navigation from './src/navigation';
+import { withAuthenticator, AmplifyTheme } from 'aws-amplify-react-native';
+import config from './src/aws-exports';
+
+Amplify.configure(config);
 
 const App = () => {
+  Auth.signOut();
   return (
     <SafeAreaView style={styles.root}>
       <Navigation />

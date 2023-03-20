@@ -1,34 +1,55 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import SocialSignInButtons from '../../components/SocialSignInButtons';
-import {useNavigation} from '@react-navigation/core';
-import {useForm} from 'react-hook-form';
+import { useNavigation } from '@react-navigation/core';
+import { useForm } from 'react-hook-form';
+import { useRoute } from '@react-navigation/native';
+import { Auth } from 'aws-amplify';
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
 const ConfirmEmailScreen = () => {
-  const {control, handleSubmit} = useForm();
-
+  const route = useRoute();
+  const { control, handleSubmit, watch } = useForm({ defaultValues: { email: route?.params?.email } });
+  const email = watch('email');
   const navigation = useNavigation();
 
-  const onConfirmPressed = data => {
-    console.warn(data);
-    navigation.navigate('Home');
+  const onConfirmPressed = async (data) => {
+    try {
+      await Auth.confirmSignUp(data.email, data.code);
+      navigation.navigate('SignIn');
+    } catch (e) {
+      Alert.alert('Oops', e.message);
+    }
   };
 
   const onSignInPress = () => {
     navigation.navigate('SignIn');
   };
 
-  const onResendPress = () => {
-    console.warn('onResendPress');
+  const onResendPress = async () => {
+    try {
+      await Auth.resendSignUp(email);
+      Alert.alert('Success', 'Code was resent to your email');
+    } catch (e) {
+      Alert.alert('Oops', e.message);
+    }
   };
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <View style={styles.root}>
         <Text style={styles.title}>Confirm your email</Text>
-
+        <CustomInput
+          name="email"
+          control={control}
+          placeholder="Email"
+          rules={{
+            required: 'Email is required',
+            pattern: { value: EMAIL_REGEX, message: 'Email is invalid' },
+          }}
+        />
         <CustomInput
           name="code"
           control={control}
@@ -40,17 +61,9 @@ const ConfirmEmailScreen = () => {
 
         <CustomButton text="Confirm" onPress={handleSubmit(onConfirmPressed)} />
 
-        <CustomButton
-          text="Resend code"
-          onPress={onResendPress}
-          type="SECONDARY"
-        />
+        <CustomButton text="Resend code" onPress={onResendPress} type="SECONDARY" />
 
-        <CustomButton
-          text="Back to Sign in"
-          onPress={onSignInPress}
-          type="TERTIARY"
-        />
+        <CustomButton text="Back to Sign in" onPress={onSignInPress} type="TERTIARY" />
       </View>
     </ScrollView>
   );

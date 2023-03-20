@@ -1,34 +1,34 @@
-import React, {useState} from 'react';
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  useWindowDimensions,
-  ScrollView,
-  TextInput,
-} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, StyleSheet, useWindowDimensions, ScrollView, TextInput, Alert } from 'react-native';
 import Logo from '../../../assets/images/Logo_1.png';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import SocialSignInButtons from '../../components/SocialSignInButtons';
-import {useNavigation} from '@react-navigation/native';
-import {useForm, Controller} from 'react-hook-form';
+import { useNavigation } from '@react-navigation/native';
+import { useForm, Controller } from 'react-hook-form';
+import { Auth } from 'aws-amplify';
 
 const SignInScreen = () => {
-  const {height} = useWindowDimensions();
+  const { height } = useWindowDimensions();
   const navigation = useNavigation();
-
+  const [loading, setLoading] = useState(false);
   const {
     control,
     handleSubmit,
-    formState: {errors},
+    formState: { errors },
   } = useForm();
 
-  const onSignInPressed = data => {
-    console.log(data);
-    // validate user
-    navigation.navigate('Home');
+  const onSignInPressed = async (data) => {
+    if (loading) {
+      return;
+    }
+    setLoading(true);
+    try {
+      await Auth.signIn(data.email, data.password);
+    } catch (e) {
+      Alert.alert('Oops', e.message);
+    }
+    setLoading(false);
   };
 
   const onForgotPasswordPressed = () => {
@@ -42,18 +42,9 @@ const SignInScreen = () => {
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <View style={styles.root}>
-        <Image
-          source={Logo}
-          style={[styles.logo, {height: height * 0.3}]}
-          resizeMode="contain"
-        />
+        <Image source={Logo} style={[styles.logo, { height: height * 0.3 }]} resizeMode="contain" />
 
-        <CustomInput
-          name="username"
-          placeholder="Username"
-          control={control}
-          rules={{required: 'Username is required'}}
-        />
+        <CustomInput name="email" placeholder="Email" control={control} rules={{ required: 'Email is required' }} />
 
         <CustomInput
           name="password"
@@ -69,21 +60,13 @@ const SignInScreen = () => {
           }}
         />
 
-        <CustomButton text="Sign In" onPress={handleSubmit(onSignInPressed)} />
+        <CustomButton text={loading ? 'Loading...' : 'Sign In'} onPress={handleSubmit(onSignInPressed)} />
 
-        <CustomButton
-          text="Forgot password?"
-          onPress={onForgotPasswordPressed}
-          type="TERTIARY"
-        />
+        <CustomButton text="Forgot password?" onPress={onForgotPasswordPressed} type="TERTIARY" />
 
         <SocialSignInButtons />
 
-        <CustomButton
-          text="Don't have an account? Create one"
-          onPress={onSignUpPress}
-          type="TERTIARY"
-        />
+        <CustomButton text="Don't have an account? Create one" onPress={onSignUpPress} type="TERTIARY" />
       </View>
     </ScrollView>
   );

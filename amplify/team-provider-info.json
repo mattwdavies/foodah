@@ -1,0 +1,20 @@
+{
+  "staging": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-foodah-staging-161046-authRole",
+      "UnauthRoleArn": "arn:aws:iam::683155706257:role/amplify-foodah-staging-161046-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::683155706257:role/amplify-foodah-staging-161046-authRole",
+      "Region": "eu-west-2",
+      "DeploymentBucketName": "amplify-foodah-staging-161046-deployment",
+      "UnauthRoleName": "amplify-foodah-staging-161046-unauthRole",
+      "StackName": "amplify-foodah-staging-161046",
+      "StackId": "arn:aws:cloudformation:eu-west-2:683155706257:stack/amplify-foodah-staging-161046/1c81a850-c415-11ed-892e-02154606118a",
+      "AmplifyAppId": "d3k84rw9eci1x5"
+    },
+    "categories": {
+      "auth": {
+        "foodah": {}
+      }
+    }
+  }
+}
